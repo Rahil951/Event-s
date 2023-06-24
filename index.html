@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Event Form</title>
+</head>
+<style>
+    body {
+      font-family: Arial, sans-serif;
+    }
+
+    h1, h2 {
+      color: #333;
+    }
+
+    form {
+      margin-bottom: 20px;
+    }
+
+    input[type="text"] {
+      padding: 5px;
+      font-size: 16px;
+    }
+
+    button[type="submit"] {
+      padding: 5px 10px;
+      font-size: 16px;
+      background-color: #4caf50;
+      color: #fff;
+      border: none;
+      cursor: pointer;
+    }
+
+    button[type="submit"]:hover {
+      background-color: #45a049;
+    }
+
+    ul {
+      list-style-type: none;
+      padding: 0;
+    }
+
+    li {
+      margin-bottom: 10px;
+    }
+
+    li span {
+      display: inline-block;
+      width: 150px;
+      font-weight: bold;
+    }
+
+    .remove-button {
+      background-color: #f44336;
+      color: #fff;
+      border: none;
+      padding: 2px 5px;
+      font-size: 14px;
+      cursor: pointer;
+    }
+
+    .remove-button:hover {
+      background-color: #d32f2f;
+    }
+  </style>
+<body>
+  <h1>Event Form</h1>
+
+  <form id="eventForm">
+    <input type="text" id="eventName" placeholder="Event Name">
+    <button type="submit">Add Event</button>
+  </form>
+
+  <h2>Event List</h2>
+  <ul id="eventList"></ul>
+
+  <script>
+    // Retrieve events from localStorage
+    function getEvents() {
+      const events = JSON.parse(localStorage.getItem('events')) || [];
+      return events;
+    }
+
+    // Save events to localStorage
+    function saveEvents(events) {
+      localStorage.setItem('events', JSON.stringify(events));
+    }
+
+    // Add event to the list
+    function addEventToList(event) {
+      const eventList = document.getElementById('eventList');
+      const eventItem = document.createElement('li');
+      eventItem.textContent = event;
+      eventList.appendChild(eventItem);
+    }
+
+    // Remove event from the list
+    function removeEventFromList(index) {
+      const eventList = document.getElementById('eventList');
+      eventList.removeChild(eventList.childNodes[index]);
+    }
+
+    // Print events in the browser
+    function printEvents() {
+      const events = getEvents();
+      const eventList = document.getElementById('eventList');
+      eventList.innerHTML = '';
+      events.map((event) => {
+        const eventItem = document.createElement('li');
+        eventItem.textContent = event;
+        eventList.appendChild(eventItem);
+      });
+    }
+
+    // Clear localStorage and event list
+    function clearEvents() {
+      localStorage.removeItem('events');
+      const eventList = document.getElementById('eventList');
+      eventList.innerHTML = '';
+    }
+
+    // Handle form submission
+    document.getElementById('eventForm').addEventListener('submit', function (e) {
+      e.preventDefault();
+      const eventName = document.getElementById('eventName').value;
+
+      // Add event to localStorage
+      const events = getEvents();
+      events.push(eventName);
+      saveEvents(events);
+
+      // Add event to the list
+      addEventToList(eventName);
+
+      // Clear input field
+      document.getElementById('eventName').value = '';
+    });
+
+    // Fetch events on page load
+    document.addEventListener('DOMContentLoaded', function () {
+      printEvents();
+    });
+
+    // Event delegation to remove event from the list
+    document.getElementById('eventList').addEventListener('click', function (e) {
+      if (e.target.tagName === 'LI') {
+        const index = Array.from(e.target.parentNode.childNodes).indexOf(e.target);
+
+        // Remove event from localStorage
+        const events = getEvents();
+        events.splice(index, 1);
+        saveEvents(events);
+
+        // Remove event from the list
+        removeEventFromList(index);
+      }
+    });
+    function createRemoveButton(index) {
+      const button = document.createElement('button');
+      button.textContent = 'Remove';
+      button.className = 'remove-button';
+      button.addEventListener('click', function () {
+        removeEvent(index);
+      });
+      return button;
+    }
+
+    function removeEvent(index) {
+      const events = getEvents();
+      events.splice(index, 1);
+      saveEvents(events);
+      printEvents();
+    }
+
+    function printEvents() {
+      const events = getEvents();
+      const eventList = document.getElementById('eventList');
+      eventList.innerHTML = '';
+      events.map((event, index) => {
+        const eventItem = document.createElement('li');
+        eventItem.innerHTML = `<span>${event}</span>`;
+        eventItem.appendChild(createRemoveButton(index));
+        eventList.appendChild(eventItem);
+      });
+    }
+  </script>
+</body>
+</html>
